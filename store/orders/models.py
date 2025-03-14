@@ -7,7 +7,10 @@ from store.products.models import Product
 class Order(models.Model):
     id = models.CharField(max_length=36, primary_key=True, default=uuid.uuid4)
     total_price = models.FloatField()
-    status = models.CharField(max_length=10, choices=OrderStatusEnums.choices(), default=OrderStatusEnums.PENDING.value)
+    status = models.SmallIntegerField(
+        choices=OrderStatusEnums.choices(),
+        default=OrderStatusEnums.PENDING.value,
+    )
 
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
@@ -16,6 +19,10 @@ class Order(models.Model):
     class Meta:
         db_table = "orders"
         managed = True
+
+    def mark_completed(self):
+        self.status = OrderStatusEnums.COMPLETED.value
+        self.save()
 
 
 class OrderItem(models.Model):

@@ -1,0 +1,461 @@
+openapi: 3.0.0
+info:
+  version: '1.0'
+  title: Zania Store
+servers:
+  - url: 'http://localhost:8000'
+paths:
+  /products/:
+    get:
+      tags:
+        - Products
+      summary: List
+      description: |-
+        ### Ordering & Filtering  
+
+        #### **Ordering**  
+        You can order results using the following fields:  
+        - `created`  
+        - `name`  
+        - `stock`  
+        - `price`  
+
+        To sort in **descending order**, prefix the field with a **minus sign (`-`)**.  
+        **Example:** `-price` sorts results by price in descending order.
+
+        #### **Filtering**  
+        Available filter parameters:  
+        - `name`  
+
+        You can use these parameters to refine search results.
+      operationId: get-products
+      parameters:
+        - name: ordering
+          in: query
+          description: 'Order by fields asc/desc( name,stock,price,created)'
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: filter by name
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    type: object
+                    properties:
+                      count:
+                        type: integer
+                      per_page:
+                        type: integer
+                      total_pages:
+                        type: integer
+                      current:
+                        type: integer
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        description:
+                          type: string
+                        price:
+                          type: integer
+                        stock:
+                          type: integer
+                        created:
+                          type: string
+                        modified:
+                          type: string
+                x-examples:
+                  Example 1:
+                    pagination:
+                      count: 2
+                      per_page: 10
+                      total_pages: 1
+                      current: 1
+                    data:
+                      - id: 275e63b9-4494-4bb9-bbfd-feac800bcfd3
+                        name: pc
+                        description: test
+                        price: 30
+                        stock: 14
+                        created: '2025-03-14T21:41:21Z'
+                        modified: '2025-03-14T21:41:30Z'
+                      - id: acf5e320-cb91-49df-a776-2775854fa017
+                        name: keyboard
+                        description: some keyboard description
+                        price: 500
+                        stock: 20
+                        created: '2025-03-16T12:42:03Z'
+                        modified: '2025-03-16T12:42:03Z'
+              examples:
+                Example 1:
+                  value:
+                    pagination:
+                      count: 2
+                      per_page: 10
+                      total_pages: 1
+                      current: 1
+                    data:
+                      - id: 275e63b9-4494-4bb9-bbfd-feac800bcfd3
+                        name: pc
+                        description: test
+                        price: 30
+                        stock: 14
+                        created: '2025-03-14T21:41:21Z'
+                        modified: '2025-03-14T21:41:30Z'
+                      - id: acf5e320-cb91-49df-a776-2775854fa017
+                        name: keyboard
+                        description: some keyboard description
+                        price: 500
+                        stock: 20
+                        created: '2025-03-16T12:42:03Z'
+                        modified: '2025-03-16T12:42:03Z'
+      servers:
+        - url: 'http://localhost:8000'
+    post:
+      tags:
+        - Products
+      summary: Create
+      operationId: post-products
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                price:
+                  type: integer
+                stock:
+                  type: integer
+                description:
+                  type: string
+              required:
+                - name
+                - price
+                - stock
+                - description
+              x-examples:
+                Example 1:
+                  name: keyboard
+                  price: 500
+                  stock: 20
+                  description: some keyboard description
+            examples:
+              Example 1:
+                value:
+                  name: keyboard
+                  price: 500
+                  stock: 20
+                  description: some keyboard description
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      description:
+                        type: string
+                      price:
+                        type: integer
+                      stock:
+                        type: integer
+                      created:
+                        type: string
+                      modified:
+                        type: string
+                x-examples:
+                  Example 1:
+                    status: success
+                    message: Product created.
+                    data:
+                      id: acf5e320-cb91-49df-a776-2775854fa017
+                      name: keyboard
+                      description: some keyboard description
+                      price: 500
+                      stock: 20
+                      created: '2025-03-16T12:42:03Z'
+                      modified: '2025-03-16T12:42:03Z'
+              examples:
+                Example 1:
+                  value:
+                    status: success
+                    message: Product created.
+                    data:
+                      id: acf5e320-cb91-49df-a776-2775854fa017
+                      name: keyboard
+                      description: some keyboard description
+                      price: 500
+                      stock: 20
+                      created: '2025-03-16T12:42:03Z'
+                      modified: '2025-03-16T12:42:03Z'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+                    properties:
+                      name:
+                        type: array
+                        items:
+                          type: string
+                  code:
+                    type: string
+                x-examples:
+                  Example 1:
+                    errors:
+                      name:
+                        - This field is required.
+                    code: STR_0002
+              examples:
+                Validation Error:
+                  value:
+                    errors:
+                      name:
+                        - This field is required.
+                    code: STR_0002
+                Product name exists:
+                  value:
+                    errors:
+                      name:
+                        - A product with this name already exists.
+                    code: STR_0002
+        '500':
+          description: Internal Server Error
+      servers:
+        - url: 'http://localhost:8000'
+  /orders/:
+    post:
+      tags:
+        - Orders
+      summary: Create order
+      operationId: post-orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                products:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      product_id:
+                        type: string
+                      quantity:
+                        type: integer
+                    required:
+                      - product_id
+                      - quantity
+              required:
+                - products
+              x-examples:
+                Example 1:
+                  products:
+                    - product_id: c236b205-11e4-4382-b572-1fb176bc291b
+                      quantity: 2
+            examples:
+              Example 1:
+                value:
+                  products:
+                    - product_id: ca7fbf0a-2002-4270-a612-be5ecc7c6874
+                      quantity: 2
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      order_id:
+                        type: string
+                x-examples:
+                  Example 1:
+                    status: success
+                    message: Order placed successfully.
+                    data:
+                      order_id: 0185b417-2a97-4803-8732-431486fc40d6
+              examples:
+                Example 1:
+                  value:
+                    status: success
+                    message: Order placed successfully.
+                    data:
+                      order_id: 0185b417-2a97-4803-8732-431486fc40d6
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+                    properties:
+                      stock:
+                        type: string
+                  code:
+                    type: string
+                x-examples:
+                  Example 1:
+                    message: 'Insufficient stock'
+                    errors:
+                      type: object
+                    code: STR_0002
+              examples:
+                Not sufficient stock:
+                  value:
+                    message: 'Insufficient stock'
+                    error: {} 
+                    code: STR_0002
+                Invalid product ID:
+                  value:
+                    errors:
+                      products:
+                        - product_id:
+                            - 'Invalid product_id: Product does not exist.'
+                    code: STR_0002
+                'No products ':
+                  value:
+                    errors:
+                      products:
+                        - At least one product is required to place an order.
+                    code: STR_0002
+        '500':
+          description: Internal Server Error
+      servers:
+        - url: 'http://localhost:8000'
+    get:
+      tags:
+        - Orders
+      summary: List
+      description: |
+        ### **Ordering**  
+        You can order results using the following fields:  
+        - `created`  
+
+        To sort in **descending order**, prefix the field with a **minus sign (`-`)**.  
+        **Example:** `-created` sorts results by price in descending order.
+      operationId: get-orders
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pagination:
+                    type: object
+                    properties:
+                      count:
+                        type: integer
+                      per_page:
+                        type: integer
+                      total_pages:
+                        type: integer
+                      current:
+                        type: integer
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        total_price:
+                          type: integer
+                        status:
+                          type: string
+                        created:
+                          type: string
+                        products:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                              name:
+                                type: string
+                              price:
+                                type: integer
+                              quantity:
+                                type: integer
+                x-examples:
+                  Example 1:
+                    pagination:
+                      count: 1
+                      per_page: 10
+                      total_pages: 1
+                      current: 1
+                    data:
+                      - id: d3bd153b-5fe0-4982-af6e-fb1cbd9b9446
+                        total_price: 1500
+                        status: completed
+                        created: '2025-03-16T14:35:43Z'
+                        products:
+                          - id: 1e9ca267-13a7-4ade-b93f-801900193d5c
+                            name: keyboard
+                            price: 500
+                            quantity: 3
+              examples:
+                Example 1:
+                  value:
+                    pagination:
+                      count: 1
+                      per_page: 10
+                      total_pages: 1
+                      current: 1
+                    data:
+                      - id: d3bd153b-5fe0-4982-af6e-fb1cbd9b9446
+                        total_price: 1500
+                        status: completed
+                        created: '2025-03-16T14:35:43Z'
+                        products:
+                          - id: 1e9ca267-13a7-4ade-b93f-801900193d5c
+                            name: keyboard
+                            price: 500
+                            quantity: 3
+      servers:
+        - url: 'http://localhost:8000'

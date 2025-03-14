@@ -1,13 +1,36 @@
-version: "3.8"
+volumes:
+  zania_store_api_local_mysql_data: {}
 
 services:
   app:
     build: .
     ports:
-      - "8000:8000"
+      - "${DOCKER_PORT:-8000}:8000"
     volumes:
       - .:/app
     environment:
-      - DEBUG=True
-      - DATABASE_URL=sqlite:///db.sqlite3
-    command: [ "sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000" ]
+      - DJANGO_SETTINGS_MODULE=store.settings
+      - DATABASE_HOST=${DOCKER_MYSQL_HOST:-mysql} # ✅ Dynamically map MySQL host
+    depends_on:
+      mysql:
+        condition: service_healthy # ✅ Wait for MySQL to be healthy before starting
+    command: >
+      sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "${DOCKER_MYSQL_PORT:-3306}:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=zania
+      - MYSQL_PASSWORD=zania
+      - MYSQL_DATABASE=zania_store
+    volumes:
+      - zania_store_api_local_mysql_data:/var/lib/mysql
+    healthcheck:
+      # ✅ Add health check to ensure MySQL is ready
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10

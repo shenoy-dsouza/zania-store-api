@@ -6,11 +6,20 @@ from rest_framework.serializers import ValidationError
 from store.exceptions import BaseException
 from store import error_codes
 from store.orders.models import Order
+from django_filters import rest_framework as django_filters
+from rest_framework import filters
 
-class OrderCreateAPIView(generics.ListCreateAPIView):
+
+class OrderListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = OrderSerializer
     queryset = Order.objects.all()
-    
+    filter_backends = [
+        filters.OrderingFilter,
+        django_filters.DjangoFilterBackend,
+    ]
+    ordering_fields = ["created"]
+    ordering = ["-created"]
+
     def get(self, request, *args, **kwargs):
         try:
             return super().get(request, *args, **kwargs)
@@ -24,7 +33,6 @@ class OrderCreateAPIView(generics.ListCreateAPIView):
                 },
                 e.get_http_status_code(),
             )
-    
 
     def post(self, request, *args, **kwargs):
         try:
@@ -37,8 +45,7 @@ class OrderCreateAPIView(generics.ListCreateAPIView):
                 {
                     "status": "success",
                     "message": "Order placed successfully.",
-                    "order_id": order.id,
-                    "total_price": order.total_price,
+                    "data": {"order_id": order.id},
                 },
                 status=status.HTTP_201_CREATED,
             )

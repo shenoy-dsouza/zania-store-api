@@ -27,6 +27,8 @@ class ProductsListCreateAPIView(generics.ListCreateAPIView):
         "created",
     ]
 
+    ordering = ["-created"]
+
     def get(self, request, *args, **kwargs):
         try:
             return super().get(request, *args, **kwargs)
